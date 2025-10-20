@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Student Registration</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  height: 100vh;
+  font-family: 'Poppins', sans-serif;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #007bff, #00bfff, #4facfe);
+  background-size: 400% 400%;
+  animation: gradientBG 10s ease infinite;
+}
+
+@keyframes gradientBG {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.container {
+  width: 100%;
+  max-width: 420px;
+  padding: 20px;
+}
+
+.form-card {
+  background: #ffffffcc;
+  backdrop-filter: blur(10px);
+  padding: 30px 35px;
+  border-radius: 16px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s;
+}
+
+.form-card:hover {
+  transform: translateY(-5px);
+}
+
+h1 {
+  text-align: center;
+  color: #004aad;
+  margin-bottom: 8px;
+}
+
+.subtitle {
+  text-align: center;
+  font-size: 14px;
+  color: #444;
+  margin-bottom: 20px;
+}
+
+.input-group {
+  margin-bottom: 18px;
+}
+
+label {
+  font-weight: 600;
+  font-size: 14px;
+  color: #333;
+  display: block;
+  margin-bottom: 6px;
+}
+
+input[type="text"],
+input[type="file"],
+select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.3s;
+}
+
+input[type="text"]:focus,
+input[type="file"]:focus,
+select:focus {
+  border-color: #007bff;
+}
+
+select {
+  background-color: white;
+  color: #333;
+}
+
+.file-upload {
+  position: relative;
+}
+
+#preview-box {
+  margin-top: 10px;
+  text-align: center;
+}
+
+#preview-image {
+  display: none;
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 2px solid #007bff;
+  margin-top: 10px;
+  transition: 0.3s;
+}
+
+#preview-image:hover {
+  transform: scale(1.05);
+}
+
+.submit-btn {
+  width: 100%;
+  background: #007bff;
+  border: none;
+  color: white;
+  font-weight: 600;
+  font-size: 16px;
+  border-radius: 8px;
+  padding: 12px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.submit-btn:hover {
+  background: #0056b3;
+}
+
+#responseMsg {
+  text-align: center;
+  margin-top: 15px;
+  color: #006400;
+  font-weight: 600;
+}
+
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="form-card">
+      <h1>🎓 Student Registration</h1>
+      <p class="subtitle">Enter your details carefully below</p>
+
+      <form id="studentForm" enctype="multipart/form-data">
+        <div class="input-group">
+          <label for="name">Full Name (with Initial)</label>
+          <input type="text" id="name" name="name" placeholder="Savitha D" required>
+        </div>
+
+        <div class="input-group">
+          <label for="roll">Roll Number</label>
+          <input type="text" id="roll" name="roll" placeholder="ES23AD81" required>
+        </div>
+
+        <div class="input-group">
+          <label for="reg">Register Number</label>
+          <input type="text" id="reg" name="reg" placeholder="7304243210.." required>
+        </div>
+
+        <div class="input-group">
+          <label for="dept">Department</label>
+          <select id="dept" name="dept" required>
+            <option value="">-- Select Department --</option>
+            <option value="AI & DS">Artificial Intelligence & Data Science</option>
+            
+          </select>
+        </div>
+
+        <div class="input-group file-upload">
+          <label for="photo">Upload Photo</label>
+          <input type="file" id="photo" name="photo" accept="image/*" required>
+          <div id="preview-box">
+            <img id="preview-image" alt="Preview" />
+          </div>
+        </div>
+
+        <button type="submit" class="submit-btn">Submit</button>
+      </form>
+
+      <p id="responseMsg"></p>
+    </div>
+  </div>
+
+  <script>
+    // Photo preview
+    document.getElementById("photo").addEventListener("change", function() {
+      const file = this.files[0];
+      const preview = document.getElementById("preview-image");
+      if (file) {
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = "block";
+      }
+    });
+
+    // Submit form to Flask
+    document.getElementById("studentForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData();
+      formData.append("name", document.getElementById("name").value);
+      formData.append("roll", document.getElementById("roll").value);
+      formData.append("reg", document.getElementById("reg").value);
+      formData.append("dept", document.getElementById("dept").value);
+      formData.append("photo", document.getElementById("photo").files[0]);
+
+      const res = await fetch("/submit", {
+        method: "POST",
+        body: formData
+      });
+
+      const result = await res.json();
+      document.getElementById("responseMsg").innerText = result.message;
+      document.getElementById("studentForm").reset();
+      document.getElementById("preview-image").style.display = "none";
+    });
+  </script>
+</body>
+</html>
